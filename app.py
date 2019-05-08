@@ -3,10 +3,10 @@ from urllib.parse import urlencode
 from flask import Flask, request, redirect
 
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 
-@app.route('/api/1/access/activity.xml')
+@application.route('/api/1/access/activity.xml')
 def activity():
     base_url = 'https://store.staging.iati.cloud/api/activities/?'
     filters = {
