@@ -20,5 +20,10 @@ All the stuff in [the spreadsheet](https://docs.google.com/spreadsheets/d/19Qs6n
 $ git clone https://github.com/andylolz/datastore-redirects.git
 $ cd datastore-redirects
 $ pipenv install
+```
+
+## Running
+
+```shell
 $ pipenv run flask run
 ```
