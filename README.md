@@ -4,6 +4,8 @@ A tiny flask app to do v1 -> v2 datastore redirects. Based on [this excellent sp
 
 ## Test it out!
 
+Below are examples of requests equivalent in format to those made to the [v1 (old) datastore](http://datastore.iatistandard.org/). The requests are reshaped and redirected to the [v2 (new) datastore](https://store.staging.iati.cloud/).
+
  * [/api/1/access/activity.xml?iati-identifier=44000-P090807](https://v1-iati-datastore.herokuapp.com/api/1/access/activity.xml?iati-identifier=44000-P090807)
  * [/api/1/access/activity.xml?recipient-country=BD](https://v1-iati-datastore.herokuapp.com/api/1/access/activity.xml?recipient-country=BD)
  * [/api/1/access/activity.xml?reporting-org=GB-GOV-1](https://v1-iati-datastore.herokuapp.com/api/1/access/activity.xml?reporting-org=GB-GOV-1)
