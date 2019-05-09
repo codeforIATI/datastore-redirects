@@ -59,13 +59,16 @@ def activity():
         # ... if so, error
         return 'Unknown filter(s): ' + ', '.join(unknown_filters), 400
 
+    # Check if any of the "unknown mappings" have been used ...
+    unknown_mappings = [x for x in request.args.keys()
+                        if not known_filters.get(x)]
+    if unknown_mappings != []:
+        # ... if so, error
+        return 'Unknown mapping(s): ' + ', '.join(unknown_mappings), 400
+
     # Build the redirect request params
     for old_filter, value in request.args.items():
         new_filter = known_filters[old_filter]
-        if new_filter is None:
-            # Some mappings are not yet known.
-            # If any of these are used, error.
-            return 'Unknown mapping for: ' + old_filter, 400
         # v2 (new) datastore uses `,` as a separator
         # for lists of values, whereas
         # v1 (old) datastore used `|`
