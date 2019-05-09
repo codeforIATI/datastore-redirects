@@ -23,7 +23,7 @@ def activity():
     }
 
     # From: https://docs.google.com/spreadsheets/d/19Qs6naJhoMIDpgbtNWr2Uab1mzzJge61_vfP4mEYCTs/edit
-    known_filters = {
+    mappings = {
         'iati-identifier': 'iati_identifier',
         'recipient-country': 'recipient_country',
         'recipient-region': 'recipient_region',
@@ -54,21 +54,23 @@ def activity():
 
     # Check if any unexpected URL params have been used ...
     unknown_filters = [x for x in request.args.keys()
-                       if x not in known_filters.keys()]
+                       if x not in mappings.keys()]
     if unknown_filters != []:
         # ... if so, error
-        return 'Unknown filter(s): ' + ', '.join(unknown_filters), 400
+        return 'Unknown filter(s): {}'.format(
+            ', '.join(unknown_filters)), 400
 
-    # Check if any of the "unknown mappings" have been used ...
-    unknown_mappings = [x for x in request.args.keys()
-                        if not known_filters.get(x)]
-    if unknown_mappings != []:
+    # Check if any of the undefined mappings have been used ...
+    undefined_mappings = [x for x in request.args.keys()
+                          if not mappings.get(x)]
+    if undefined_mappings != []:
         # ... if so, error
-        return 'Unknown mapping(s): ' + ', '.join(unknown_mappings), 400
+        return 'Mapping to new filter(s) not known: {}'.format(
+            ', '.join(undefined_mappings)), 400
 
     # Build the redirect request params
     for old_filter, value in request.args.items():
-        new_filter = known_filters[old_filter]
+        new_filter = mappings[old_filter]
         # v2 (new) datastore uses `,` as a separator
         # for lists of values, whereas
         # v1 (old) datastore used `|`
