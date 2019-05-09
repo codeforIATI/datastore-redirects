@@ -8,11 +8,21 @@ application = Flask(__name__)
 
 @application.route('/api/1/access/activity.xml')
 def activity():
+    '''
+    Returns a redirect to the v2 (new) datastore.
+
+    Request params are mapped onto OIPA filters.
+    '''
+
+    # Current location of v2 (new) datastore
     base_url = 'https://store.staging.iati.cloud/api/activities/?'
+
+    # We collect redirect request params here
     filters = {
         'format': 'xml',
     }
 
+    # From: https://docs.google.com/spreadsheets/d/19Qs6naJhoMIDpgbtNWr2Uab1mzzJge61_vfP4mEYCTs/edit
     known_filters = {
         'iati-identifier': 'iati_identifier',
         'recipient-country': 'recipient_country',
@@ -42,22 +52,36 @@ def activity():
         'registry-dataset': None,
     }
 
+    # Check if any unexpected URL params have been used ...
     unknown_filters = [x for x in request.args.keys()
                        if x not in known_filters.keys()]
     if unknown_filters != []:
+        # ... if so, error
         return 'Unknown filter(s): ' + ', '.join(unknown_filters), 400
 
+    # Build the redirect request params
     for old_filter, value in request.args.items():
         new_filter = known_filters[old_filter]
         if new_filter is None:
+            # Some mappings are not yet known.
+            # If any of these are used, error.
             return 'Unknown mapping for: ' + old_filter, 400
+        # v2 (new) datastore uses `,` as a separator
+        # for lists of values, whereas
+        # v1 (old) datastore used `|`
         filters[new_filter] = value.replace('|', ',')
 
+    # Return the redirect
     return redirect(base_url + urlencode(filters))
 
 
 @application.route('/')
 def home():
+    '''
+    Serve the homepage.
+
+    Very simple - just read and return the contents of index.html
+    '''
     with open('index.html') as handler:
         html = handler.read()
     return html
