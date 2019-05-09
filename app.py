@@ -54,3 +54,10 @@ def activity():
         filters[new_filter] = value.replace('|', ',')
 
     return redirect(base_url + urlencode(filters))
+
+
+@application.route('/')
+def home():
+    with open('index.html') as handler:
+        html = handler.read()
+    return html
