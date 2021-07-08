@@ -27,6 +27,12 @@ def activity_search():
     filters = {}
 
 
+    def fix_group(tree):
+        if (type(tree) in (luqum.tree.Group, luqum.tree.FieldGroup)) and (len(tree.children) == 1):
+            tree = tree.children[0]
+        return tree
+
+
     def fix_name(name):
         # DS Classic automatically searches on activities and transactions
         # for sectors and recipient countries
@@ -44,11 +50,12 @@ def activity_search():
                 if (len(seen_fields) > 0):
                     if fixed_name not in seen_fields:
                         raise Exception("Not implemented: ORs with different fields")
+                expr = fix_group(child.expr)
                 if fixed_name not in filters:
-                    filters[fixed_name] = child.expr.value
+                    filters[fixed_name] = expr.value
                 else:
-                    if child.expr.value not in filters[fixed_name]:
-                        filters[fixed_name] += '|' + child.expr.value
+                    if expr.value not in filters[fixed_name]:
+                        filters[fixed_name] += '|' + expr.value
                 seen_fields.append(fixed_name)
         return filters
 
@@ -68,14 +75,14 @@ def activity_search():
     def parse_expression(expr):
         filters = {}
         tree = parser.parse(expr)
-        if (type(tree) == luqum.tree.Group) and (len(tree.children) == 1):
-            tree = tree.children[0]
+        tree = fix_group(tree)
         if type(tree) == luqum.tree.OrOperation:
             filters = get_from_or(tree, filters)
         elif type(tree) == luqum.tree.AndOperation:
             filters = get_from_and(tree, filters)
         elif type(tree) == luqum.tree.SearchField:
-            filters[tree.name] = tree.expr.value
+            expr = fix_group(tree.expr)
+            filters[tree.name] = expr.value
         return filters
 
 
