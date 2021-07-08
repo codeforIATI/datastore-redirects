@@ -25,26 +25,37 @@
     </style>
   </head>
   <body>
-    <a class="github-fork-ribbon" href="https://github.com/andylolz/datastore-redirects" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+    <a class="github-fork-ribbon" href="https://github.com/codeforiati/datastore-redirects" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
     <div class="container-lg px-3 my-5 markdown-body">
 
       <h1 id="datastore-redirects">Datastore Redirects</h1>
 
-<p>A tiny flask app to do v1 -&gt; v2 datastore redirects. Based on <a href="https://docs.google.com/spreadsheets/d/19Qs6naJhoMIDpgbtNWr2Uab1mzzJge61_vfP4mEYCTs/edit">this excellent spreadsheet</a> by <a href="https://twitter.com/Mark_Brough">@markbrough</a>.</p>
+<p>A tiny flask app to do v2 -&gt; v1 datastore redirects. Based on original work by <a href="https://twitter.com/andylolz">@andylolz</a>.</p>
+
+<h3>Why are redirects important?</h3>
+<p>Putting in place redirects for the IATI Datastore will reduce disruption for users. Wherever possible, users can continue to use the same API calls, getting back the same response, without having to make any changes on their end. Without redirects, all users will be forced to make changes, which may involve having to go back to vendors to request changes to the source code.</p>
 
 <h2 id="test-it-out">Test it out!</h2>
 
-<p>Below are examples of requests equivalent in format to those made to the <a href="http://datastore.iatistandard.org/">v1 (old) datastore</a>. The requests are reshaped and redirected to the <a href="https://store.staging.iati.cloud/">v2 (new) datastore</a>.</p>
+<p>Below are examples of requests equivalent in format to those made to the <a href="https://iatidatastore.iatistandard.org/">V2 datastore</a>. The requests are reshaped and redirected to <a href="https://datastore.codeforiati.org/">Datastore Classic</a>.</p>
 
+<h3>Django endpoints</h3>
 <ul>
-  <li><a href="/api/1/access/activity.xml?iati-identifier=44000-P090807">/api/1/access/activity.xml?iati-identifier=44000-P090807</a></li>
-  <li><a href="/api/1/access/activity.xml?recipient-country=BD">/api/1/access/activity.xml?recipient-country=BD</a></li>
-  <li><a href="/api/1/access/activity.xml?reporting-org=GB-GOV-1">/api/1/access/activity.xml?reporting-org=GB-GOV-1</a></li>
-  <li><a href="/api/1/access/activity.xml?sector=11110">/api/1/access/activity.xml?sector=11110</a></li>
+  <li><a href="/api/activities/?iati_identifier=44000-P090807&format=xml">/api/activities/?iati_identifier=44000-P090807&format=xml</a></li>
+  <li><a href="/api/activities/?recipient_country=BD&format=xml">/api/activities/?recipient_country=BD&format=xml</a></li>
+  <li><a href="/api/activities/?reporting_organisation_identifier=GB-GOV-1&format=xml">/api/activities/?reporting_organisation_identifier=GB-GOV-1&format=xml</a></li>
+  <li><a href="/api/activities/?sector=11110&format=xml">/api/activities/?sector=11110&format=xml</a></li>
   <li>…etc.</li>
 </ul>
 
-<p>All the stuff in <a href="https://docs.google.com/spreadsheets/d/19Qs6naJhoMIDpgbtNWr2Uab1mzzJge61_vfP4mEYCTs/edit">the spreadsheet</a> should work.</p>
+<h3>SOLR endpoints</h3>
+<ul>
+  <li><a href="/search/activity/?q=reporting_org_ref:GB-GOV-1 AND (recipient_country_code:SO OR transaction_recipient_country_code:SO)&wt=xslt&tr=activity-xml.xsl&rows=1">/search/activity/?q=reporting_org_ref:GB-GOV-1 AND (recipient_country_code:SO OR transaction_recipient_country_code:SO)&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li><a href="/search/activity/?q=(reporting_org_ref:US-GOV-1 AND recipient_country_code:BD)&wt=xslt&tr=activity-xml.xsl&rows=1">/search/activity/?q=(reporting_org_ref:US-GOV-1 AND recipient_country_code:BD)&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li><a href="/search/activity/?q=iati_identifier:46002-P-LR-A00-003&wt=xslt&tr=activity-xml.xsl&rows=1">/search/activity/?q=iati_identifier:46002-P-LR-A00-003&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li>…etc.</li>
+</ul>
+
 
 <h2 id="installation">Installation</h2>
 
