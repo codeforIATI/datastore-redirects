@@ -30,7 +30,7 @@ Below are examples of requests equivalent in format to those made to the [V2 Dat
 ## Installation
 
 ```shell
-$ git clone https://github.com/andylolz/datastore-redirects.git
+$ git clone https://github.com/codeforiati/datastore-redirects.git
 $ cd datastore-redirects
 $ pipenv install
 ```
