@@ -1,7 +1,7 @@
 from urllib.parse import urlencode
 from luqum.parser import parser
 import luqum
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template, make_response, abort
 
 
 application = Flask(__name__)
@@ -15,6 +15,8 @@ def activity_search():
     Request params are mapped onto OIPA filters.
     '''
 
+    test = False
+
     request_args = dict([(k, v) for (k, v) in request.args.items()])
 
     # Current location of v2 (new) datastore
@@ -22,10 +24,13 @@ def activity_search():
 
     # We collect redirect request params here
     if (request_args.get('wt') != 'xslt') and (request_args.get('tr') != 'activity'):
-        return 'Datastore Classic is only able to serve IATI XML requests, as the format of JSON and CSV outputs differ from Datastore v2.'
+        could_not_redirect('Datastore Classic is only able to serve IATI XML requests, as the format of JSON and CSV outputs differ from Datastore v2.')
+
+    if request_args.get('test') is not None:
+        test = True
+        del request_args['test']
 
     filters = {}
-
 
     def fix_group(tree):
         if (type(tree) in (luqum.tree.Group, luqum.tree.FieldGroup)) and (len(tree.children) == 1):
@@ -49,7 +54,7 @@ def activity_search():
                 fixed_name = fix_name(child.name)
                 if (len(seen_fields) > 0):
                     if fixed_name not in seen_fields:
-                        raise Exception("Not implemented: ORs with different fields")
+                        return abort(400, "Not implemented: ORs with different fields")
                 expr = fix_group(child.expr)
                 if fixed_name not in filters:
                     filters[fixed_name] = expr.value
@@ -103,16 +108,16 @@ def activity_search():
                        if x not in mappings.keys()]
     if unknown_filters != []:
         # ... if so, error
-        return 'Unknown filter(s): {}'.format(
-            ', '.join(unknown_filters)), 400
+        return could_not_redirect('Unknown filter(s): {}'.format(
+            ', '.join(unknown_filters)))
 
     # Check if any of the undefined mappings have been used ...
     undefined_mappings = [x for x in solr_request_args.keys()
                           if not mappings.get(x)]
     if undefined_mappings != []:
         # ... if so, error
-        return 'Mapping to new filter(s) not known: {}'.format(
-            ', '.join(undefined_mappings)), 400
+        return could_not_redirect('Mapping to new filter(s) not known: {}'.format(
+            ', '.join(undefined_mappings)))
 
     # Build the redirect request params
     for old_filter, value in solr_request_args.items():
@@ -130,12 +135,15 @@ def activity_search():
         filters['limit'] = rows
 
     # Return the redirect
-    return base_url + urlencode(filters)
-    #return redirect(base_url + urlencode(filters))
+
+    if test:
+        return base_url + urlencode(filters)
+    return redirect(base_url + urlencode(filters))
 
 @application.route('/api/activities/')
 @application.route('/api/activities')
 def activity():
+    test = False
     '''
     Returns a redirect to the v2 (new) datastore.
 
@@ -148,11 +156,13 @@ def activity():
     base_url = 'https://datastore.codeforiati.org/api/1/access/activity.xml?unwrap=True&'
 
     # We collect redirect request params here
-    if request_args.get('format'):
-        if request_args.get('format') != 'xml':
-            return 'Datastore Classic is only able to serve XML requests, as the format of JSON and CSV outputs differ from Datastore v2.'
-        else:
-            del request_args['format']
+    if request_args.get('format') != 'xml':
+        return could_not_redirect('Datastore Classic is only able to serve XML requests, as the format of JSON and CSV outputs differ from Datastore v2.')
+    del request_args['format']
+
+    if request_args.get('test') is not None:
+        test = True
+        del request_args['test']
 
     filters = {}
 
@@ -181,16 +191,16 @@ def activity():
                        if x not in mappings.keys()]
     if unknown_filters != []:
         # ... if so, error
-        return 'Unknown filter(s): {}'.format(
-            ', '.join(unknown_filters)), 400
+        return could_not_redirect('Unknown filter(s): {}'.format(
+            ', '.join(unknown_filters)))
 
     # Check if any of the undefined mappings have been used ...
     undefined_mappings = [x for x in request_args.keys()
                           if not mappings.get(x)]
     if undefined_mappings != []:
         # ... if so, error
-        return 'Mapping to new filter(s) not known: {}'.format(
-            ', '.join(undefined_mappings)), 400
+        return could_not_redirect('Mapping to new filter(s) not known: {}'.format(
+            ', '.join(undefined_mappings)))
 
     # Build the redirect request params
     for old_filter, value in request_args.items():
@@ -204,8 +214,24 @@ def activity():
             filters[new_filter] = value.replace(',', '|')
 
     # Return the redirect
-    return base_url + urlencode(filters)
-    #return redirect(base_url + urlencode(filters))
+    if test:
+        return base_url + urlencode(filters)
+    return redirect(base_url + urlencode(filters))
+
+
+def could_not_redirect(message):
+    return abort(400, message)
+
+
+@application.errorhandler(400)
+def error_400(error):
+    return render_template('could_not_redirect.html', error=error), 400
+
+
+@application.errorhandler(404)
+def error_400(error):
+    return render_template('could_not_redirect.html',
+        error={'description': "Redirects have not been implemented for that route."}), 404
 
 
 @application.route('/')
