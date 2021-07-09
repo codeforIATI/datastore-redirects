@@ -39,21 +39,29 @@
 
 <p>Below are examples of requests equivalent in format to those made to the <a href="https://iatidatastore.iatistandard.org/">V2 datastore</a>. The requests are reshaped and redirected to <a href="https://datastore.codeforiati.org/">Datastore Classic</a>.</p>
 
+Including the <code>&test</code> parameter in the request will show the URL that <i>would be</i> redirected. Removing the <code>&test</code> parameter will actually perform the redirect.
+
 <h3>Django endpoints</h3>
 <ul>
-  <li><a href="/api/activities/?iati_identifier=44000-P090807&format=xml">/api/activities/?iati_identifier=44000-P090807&format=xml</a></li>
-  <li><a href="/api/activities/?recipient_country=BD&format=xml">/api/activities/?recipient_country=BD&format=xml</a></li>
-  <li><a href="/api/activities/?reporting_organisation_identifier=GB-GOV-1&format=xml">/api/activities/?reporting_organisation_identifier=GB-GOV-1&format=xml</a></li>
-  <li><a href="/api/activities/?sector=11110&format=xml">/api/activities/?sector=11110&format=xml</a></li>
+  <li><a href="/api/activities/?iati_identifier=44000-P090807&format=xml&test">/api/activities/?iati_identifier=44000-P090807&format=xml</a></li>
+  <li><a href="/api/activities/?recipient_country=BD&format=xml&test">/api/activities/?recipient_country=BD&format=xml</a></li>
+  <li><a href="/api/activities/?reporting_organisation_identifier=GB-GOV-1&format=xml&test">/api/activities/?reporting_organisation_identifier=GB-GOV-1&format=xml</a></li>
+  <li><a href="/api/activities/?sector=11110&format=xml&test">/api/activities/?sector=11110&format=xml</a></li>
   <li>…etc.</li>
 </ul>
 
 <h3>SOLR endpoints</h3>
 <ul>
-  <li><a href="/search/activity/?q=reporting_org_ref:GB-GOV-1 AND (recipient_country_code:SO OR transaction_recipient_country_code:SO)&wt=xslt&tr=activity-xml.xsl&rows=1">/search/activity/?q=reporting_org_ref:GB-GOV-1 AND (recipient_country_code:SO OR transaction_recipient_country_code:SO)&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
-  <li><a href="/search/activity/?q=(reporting_org_ref:US-GOV-1 AND recipient_country_code:BD)&wt=xslt&tr=activity-xml.xsl&rows=1">/search/activity/?q=(reporting_org_ref:US-GOV-1 AND recipient_country_code:BD)&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
-  <li><a href="/search/activity/?q=iati_identifier:46002-P-LR-A00-003&wt=xslt&tr=activity-xml.xsl&rows=1">/search/activity/?q=iati_identifier:46002-P-LR-A00-003&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li><a href="/search/activity/?q=reporting_org_ref:GB-GOV-1 AND (recipient_country_code:SO OR transaction_recipient_country_code:SO)&wt=xslt&tr=activity-xml.xsl&rows=1&test">/search/activity/?q=reporting_org_ref:GB-GOV-1 AND (recipient_country_code:SO OR transaction_recipient_country_code:SO)&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li><a href="/search/activity/?q=(reporting_org_ref:US-GOV-1 AND recipient_country_code:BD)&wt=xslt&tr=activity-xml.xsl&rows=1&test">/search/activity/?q=(reporting_org_ref:US-GOV-1 AND recipient_country_code:BD)&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li><a href="/search/activity/?q=iati_identifier:46002-P-LR-A00-003&wt=xslt&tr=activity-xml.xsl&rows=1&test">/search/activity/?q=iati_identifier:46002-P-LR-A00-003&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
   <li>…etc.</li>
+</ul>
+
+<h3>Endpoints that won't redirect</h3>
+<ul>
+  <li>ORs with different fields: <a href="/search/activity/?q=recipient_country_code:SO OR sector_code:11110&wt=xslt&tr=activity-xml.xsl&rows=1&test">/search/activity/?q=recipient_country_code:SO OR sector_code:11110&wt=xslt&tr=activity-xml.xsl&rows=1</a></li>
+  <li>JSON output: <a href="/search/activity/?q=recipient_country_code:SO&rows=1&test">/search/activity/?q=recipient_country_code:SO&rows=1</a></li>
 </ul>
 
 
