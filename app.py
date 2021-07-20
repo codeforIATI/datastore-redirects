@@ -68,7 +68,8 @@ def activity_search():
     def get_from_and(tree, filters):
         for child in tree.children:
             if type(child) == luqum.tree.SearchField:
-                filters[child.name] = child.expr.value
+                child_expr = fix_group(child.expr)
+                filters[child.name] = child_expr.value
             else:
                 if (type(child) == luqum.tree.Group) and (len(child.children) == 1):
                     child = child.children[0]
