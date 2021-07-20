@@ -21,7 +21,7 @@ def activity_search():
     request_args = dict([(k, v) for (k, v) in request.args.items()])
 
     # Current location of v2 (new) datastore
-    base_url = 'https://datastore.codeforiati.org/api/1/access/activity.xml?unwrap=True&'
+    base_url = 'https://datastore.codeforiati.org/api/1/access/activity.xml?unwrap=True'
 
     # We collect redirect request params here
     if (request_args.get('wt') != 'xslt') and (request_args.get('tr') != 'activity'):
@@ -130,10 +130,13 @@ def activity_search():
         filters['limit'] = rows
 
     # Return the redirect
-
+    url = base_url
+    if filters:
+        url = base_url + '&' + urlencode(filters)
     if test:
-        return base_url + urlencode(filters)
-    return redirect(base_url + urlencode(filters))
+        return url
+    return redirect(url)
+
 
 @application.route('/api/activities/')
 @application.route('/api/activities')
@@ -148,7 +151,7 @@ def activity():
     request_args = dict([(k, v) for (k, v) in request.args.items()])
 
     # Current location of v2 (new) datastore
-    base_url = 'https://datastore.codeforiati.org/api/1/access/activity.xml?unwrap=True&'
+    base_url = 'https://datastore.codeforiati.org/api/1/access/activity.xml?unwrap=True'
 
     # We collect redirect request params here
     if request_args.get('format') != 'xml':
@@ -209,9 +212,12 @@ def activity():
             filters[new_filter] = value.replace(',', '|')
 
     # Return the redirect
+    url = base_url
+    if filters:
+        url = base_url + '&' + urlencode(filters)
     if test:
-        return base_url + urlencode(filters)
-    return redirect(base_url + urlencode(filters))
+        return url
+    return redirect(url)
 
 
 def could_not_redirect(message):
