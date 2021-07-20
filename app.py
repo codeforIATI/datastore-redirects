@@ -1,10 +1,11 @@
 from urllib.parse import urlencode
 from luqum.parser import parser
 import luqum
-from flask import Flask, request, redirect, render_template, make_response, abort
+from flask import Flask, request, redirect, render_template, abort
 
 
 application = Flask(__name__)
+
 
 @application.route('/search/activity/')
 @application.route('/search/activity')
@@ -37,7 +38,6 @@ def activity_search():
             tree = tree.children[0]
         return tree
 
-
     def fix_name(name):
         # DS Classic automatically searches on activities and transactions
         # for sectors and recipient countries
@@ -45,7 +45,6 @@ def activity_search():
         if fixed in ["sector", "recipient_country_code"]:
             return fixed
         return name
-
 
     def get_from_or(tree, filters):
         seen_fields = []
@@ -64,7 +63,6 @@ def activity_search():
                 seen_fields.append(fixed_name)
         return filters
 
-
     def get_from_and(tree, filters):
         for child in tree.children:
             if type(child) == luqum.tree.SearchField:
@@ -75,7 +73,6 @@ def activity_search():
                 if type(child) == luqum.tree.OrOperation:
                     filters = get_from_or(child, filters)
         return filters
-
 
     def parse_expression(expr):
         filters = {}
@@ -89,7 +86,6 @@ def activity_search():
             expr = fix_group(tree.expr)
             filters[tree.name] = expr.value
         return filters
-
 
     # From: https://docs.google.com/spreadsheets/d/19Qs6naJhoMIDpgbtNWr2Uab1mzzJge61_vfP4mEYCTs/edit
 
@@ -127,9 +123,8 @@ def activity_search():
         # v1 (old) datastore used `|`
         filters[new_filter] = value.replace(',', '|')
 
-
     rows = request_args.get('rows', 1)
-    if (int(rows)>1000):
+    if (int(rows) > 1000):
         filters['stream'] = 'True'
     else:
         filters['limit'] = rows
@@ -208,7 +203,7 @@ def activity():
         # v2 (new) datastore uses `,` as a separator
         # for lists of values, whereas
         # v1 (old) datastore used `|`
-        if (new_filter == 'limit') and (int(value)>1000):
+        if (new_filter == 'limit') and (int(value) > 1000):
             filters['stream'] = 'True'
         else:
             filters[new_filter] = value.replace(',', '|')
@@ -229,8 +224,9 @@ def error_400(error):
 
 
 @application.errorhandler(404)
-def error_400(error):
-    return render_template('could_not_redirect.html',
+def error_404(error):
+    return render_template(
+        'could_not_redirect.html',
         error={'description': "Redirects have not been implemented for that route."}), 404
 
 
