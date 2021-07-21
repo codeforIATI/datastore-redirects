@@ -157,9 +157,11 @@ def activity():
     base_url = 'https://datastore.codeforiati.org/api/1/access/activity.xml?unwrap=True&'
 
     # We collect redirect request params here
-    if request_args.get('format') != 'xml':
+    # NB the default of this DSv2 endpoint is XML so we
+    # also redirect this.
+    if request_args.get('format', 'xml') != 'xml':
         return could_not_redirect('Datastore Classic is only able to serve XML requests, as the format of JSON and CSV outputs differ from Datastore v2.')
-    del request_args['format']
+    if 'format' in request.args: del request_args['format']
 
     if request_args.get('test') is not None:
         test = True
